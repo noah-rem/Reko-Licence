@@ -11,11 +11,13 @@ mongoose.connect(process.env.DB_STRING, { useNewUrlParser: true, useUnifiedTopol
 // Import Routes
 const authRoute = require('./routes/auth');
 const productRoutes = require('./routes/products');
+const userRoutes = require('./routes/user');
 
 // Route Middlewares
 app.use(express.json());
-app.use('/api/user', authRoute);
+app.use('/api/auth', authRoute);
 app.use('/api/products', productRoutes);
+app.use('/api/users', userRoutes);
 
 // Import middleware
 const verifyToken = require('./middleware/verifyToken');

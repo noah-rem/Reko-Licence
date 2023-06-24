@@ -81,7 +81,7 @@ router.post('/:productId/code', authenticateToken, checkRole(['admin']), async (
     if (!product) {
         return res.status(404).json({ message: "Product not found" });
     }
-    
+
     if (!req.body.codeName || !req.body.codeValue) {
         return res.status(400).json({ message: "Both codeName and codeValue are required" });
     }
