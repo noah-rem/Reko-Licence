@@ -23,6 +23,10 @@ const userSchema = new mongoose.Schema({
     role: { 
         type: String, 
         default: 'client' 
+    },
+    hwid: { 
+        type: String, 
+        default: 'None' 
     }
 });
 

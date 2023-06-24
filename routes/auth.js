@@ -36,6 +36,15 @@ router.post('/login', async (req, res) => {
     const validPass = await bcrypt.compare(req.body.password, user.password);
     if (!validPass) return res.status(400).send('Invalid password');
 
+    if (user.hwid == "None") {
+        user.hwid = req.body.hwid;
+        await user.save();
+    } else {
+        if (user.hwid !== req.body.hwid) {
+            return res.status(401).send('Unvalid license');
+        }
+    }
+
     const token = jwt.sign({_id: user._id, role: user.role}, process.env.TOKEN_SECRET);
     res.header('auth-token', token).send(token);
 });
