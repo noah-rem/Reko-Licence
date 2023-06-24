@@ -81,7 +81,12 @@ router.post('/:productId/code', authenticateToken, checkRole(['admin']), async (
     if (!product) {
         return res.status(404).json({ message: "Product not found" });
     }
-
+    
+    const existingCode = product.codes.some(code => code.name === req.body.codeName);
+    if (existingCode) {
+        return res.status(400).json({ message: "Code with this name already exists in the product" });
+    }
+    
     const code = {
         name: req.body.codeName,
         codeValue: req.body.codeValue
