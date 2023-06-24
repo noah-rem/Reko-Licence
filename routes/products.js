@@ -3,7 +3,7 @@ const router = express.Router();
 const Product = require('../models/Product');
 const User = require('../models/User');
 const checkRole = require('../middleware/checkRole');
-const authenticateToken = require('../middleware/authenticateToken');
+const authenticateToken = require('../middleware/verifyToken');
 
 // Route to create a product - Admin Based Role
 router.post('/', authenticateToken, checkRole(['admin']), async (req, res) => {
