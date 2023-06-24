@@ -107,13 +107,21 @@ router.post('/:productId/code', authenticateToken, checkRole(['admin']), async (
 });
 
 // Route to get all codes of a product
-router.get('/:productId/codes', authenticateToken, async (req, res) => {
-    const product = await Product.findById(req.params.productId);
+router.get('/:productName/codes', authenticateToken, async (req, res) => {
+    const product = await Product.findOne({ name: req.params.productName }).populate('users');
+
     if (!product) {
         return res.status(404).json({ message: "Product not found" });
+    }
+    
+    const userId = req.user._id;
+
+    if(product.users.every(user => user.id != userId) && req.user.role !== 'admin'){
+        return res.status(403).json({ message: "Access denied" });
     }
 
     res.json(product.codes);
 });
+
 
 module.exports = router;
