@@ -35,3 +35,7 @@ coverage/
 
 # Ignore compiled addons
 build/Release/
+
+# Ignore RSA Key
+private.pem
+public.pem
