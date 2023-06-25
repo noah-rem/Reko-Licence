@@ -28,7 +28,7 @@ const verifyToken = require('./middleware/verifyToken');
 
 // Test Protected Route
 app.get('/api/test', verifyToken, (req, res) => {
-    res.send('This route is protected!');
+    res.json({test: 'This route is protected!'});
 });
 
 //Generating RSA Key
@@ -42,5 +42,8 @@ if (!fs.existsSync('private.pem') || !fs.existsSync('public.pem')) {
     fs.writeFileSync('public.pem', publicDerKey);
 }
 
+app.use(function (req, res, next) {
+    res.status(404).json({error: 'Sorry, we cannot find that!'});
+});
 
 app.listen(3000, () => console.log('Server running.'));

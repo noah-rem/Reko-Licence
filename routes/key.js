@@ -5,7 +5,7 @@ const router = express.Router();
 
 router.get('/public', verifyToken, (req, res) => {
     const publicKey = fs.readFileSync('public.pem', 'utf8');
-    res.send(publicKey);
+    res.json({key: publicKey});
 });
 
 module.exports = router;
