@@ -2,6 +2,7 @@ const router = require('express').Router();
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const Blacklist = require('../models/Blacklist');
 
 //Register Route
 router.post('/register', async (req, res) => {
@@ -32,6 +33,9 @@ router.post('/register', async (req, res) => {
 router.post('/login', async (req, res) => {
     const user = await User.findOne({ email: req.body.email });
     if (!user) return res.status(400).json({error: 'Email is not found'});
+
+    const blacklistCheck = await Blacklist.findOne({userId: user._id});
+    if (blacklistCheck) return res.status(403).json({error: "You're blacklisted."});
 
     const validPass = await bcrypt.compare(req.body.password, user.password);
     if (!validPass) return res.status(400).json({error: 'Invalid password'});

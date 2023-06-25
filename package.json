@@ -1,7 +1,7 @@
 {
   "name": "reko-licence",
   "version": "1.0.0",
-  "description": "",
+  "description": "Licencing API Management.",
   "main": "index.js",
   "scripts": {
     "start": "node server.js"

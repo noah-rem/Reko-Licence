@@ -15,6 +15,7 @@ const authRoute = require('./routes/auth');
 const productRoutes = require('./routes/products');
 const userRoutes = require('./routes/user');
 const keyRoute = require('./routes/key');
+const blacklistroute = require('./routes/blacklist');
 
 // Route Middlewares
 app.use(express.json());
@@ -22,6 +23,7 @@ app.use('/api/auth', authRoute);
 app.use('/api/products', productRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/key', keyRoute);
+app.use('/api/blacklist', blacklistroute);
 
 // Import middleware
 const verifyToken = require('./middleware/verifyToken');
