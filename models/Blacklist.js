@@ -1,3 +1,5 @@
+const mongoose = require('mongoose');
+
 const blacklistSchema = new mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,

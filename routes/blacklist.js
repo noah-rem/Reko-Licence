@@ -1,4 +1,8 @@
 const Blacklist = require('../models/Blacklist');
+const express = require('express');
+const router = express.Router();
+const authenticateToken = require('../middleware/verifyToken');
+const checkRole = require('../middleware/checkRole');
 
 // Blacklist a user - Admin Based Role
 router.post('/:userId', authenticateToken, checkRole(['admin']), async (req, res) => {
@@ -22,3 +26,5 @@ router.post('/:userId', authenticateToken, checkRole(['admin']), async (req, res
         res.status(400).send(err);
     }
 });
+
+module.exports = router;

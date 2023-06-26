@@ -15,7 +15,7 @@ const authRoute = require('./routes/auth');
 const productRoutes = require('./routes/products');
 const userRoutes = require('./routes/user');
 const keyRoute = require('./routes/key');
-const blacklistroute = require('./routes/blacklist');
+const blacklistRoutes = require('./routes/blacklist');
 
 // Route Middlewares
 app.use(express.json());
@@ -23,7 +23,7 @@ app.use('/api/auth', authRoute);
 app.use('/api/products', productRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/key', keyRoute);
-app.use('/api/blacklist', blacklistroute);
+app.use('/api/blacklist', blacklistRoutes);
 
 // Import middleware
 const verifyToken = require('./middleware/verifyToken');
@@ -48,4 +48,4 @@ app.use(function (req, res, next) {
     res.status(404).json({error: 'Sorry, we cannot find that!'});
 });
 
-app.listen(3000, () => console.log('Server running.'));
+app.listen(process.env.PORT, () => console.log('Server running.'));
