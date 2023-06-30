@@ -8,17 +8,42 @@ const fs = require('fs');
 
 //Register Route
 router.post('/register', async (req, res) => {
-    const emailExist = await User.findOne({ email: req.body.email });
+
+    const privateKey = fs.readFileSync('private.pem', 'utf8');
+
+    const emailBytes = Buffer.from(req.body.email, 'base64');
+    const passwordBytes = Buffer.from(req.body.password, 'base64');
+    const nameBytes = Buffer.from(req.body.name, 'base64');
+
+    const decryptedEmail = crypto.privateDecrypt({
+        key: privateKey,
+        padding: crypto.constants.RSA_PKCS1_OAEP_PADDING,
+        oaepHash: "sha256",
+    }, emailBytes).toString();
+
+    const decryptedPassword = crypto.privateDecrypt({
+        key: privateKey,
+        padding: crypto.constants.RSA_PKCS1_OAEP_PADDING,
+        oaepHash: "sha256",
+    }, passwordBytes).toString();
+
+    const decryptedName = crypto.privateDecrypt({
+        key: privateKey,
+        padding: crypto.constants.RSA_PKCS1_OAEP_PADDING,
+        oaepHash: "sha256",
+    }, nameBytes).toString();
+
+    const emailExist = await User.findOne({ email: decryptedEmail });
     if (emailExist) return res.status(400).json({error: 'Email already exists'});
-    const usernameExist = await User.findOne({ name: req.body.name});
+    const usernameExist = await User.findOne({ name: decryptedName});
     if(usernameExist) return res.status(400).json({error: 'Username already exists'});
 
     const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(req.body.password, salt);
+    const hashedPassword = await bcrypt.hash(decryptedPassword, salt);
 
     const user = new User({
-        name: req.body.name,
-        email: req.body.email,
+        name: decryptedName,
+        email: decryptedEmail,
         password: hashedPassword,
         role: "client"
     });
