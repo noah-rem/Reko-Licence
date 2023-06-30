@@ -59,7 +59,7 @@ router.get('/', authenticateToken, checkRole(['admin']), async (req, res) => {
 });
 
 // Route to get all users of a product and the product's name
-router.get('/:productId/users', authenticateToken, async (req, res) => {
+router.get('/:productId/users', authenticateToken, checkRole(['admin']), async (req, res) => {
     try {
         const product = await Product.findById(req.params.productId).populate('users');
         if (!product) {

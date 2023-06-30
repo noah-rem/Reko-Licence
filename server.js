@@ -2,8 +2,29 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const app = express();
-const NodeRSA = require('node-rsa');
+const cors = require('cors');
+const crypto = require('crypto');
 const fs = require('fs');
+
+//Generating RSA Key
+const privatePath = 'private.pem';
+const publicPath = 'public.pem';
+
+if (!fs.existsSync(privatePath) || !fs.existsSync(publicPath)) {
+    const { publicKey, privateKey } = crypto.generateKeyPairSync('rsa', {
+        modulusLength: 2048,
+        publicKeyEncoding: {
+            type: 'pkcs1',
+            format: 'pem',
+        },
+        privateKeyEncoding: {
+            type: 'pkcs1',
+            format: 'pem',
+        },
+    });
+    fs.writeFileSync(privatePath, privateKey);
+    fs.writeFileSync(publicPath, publicKey);
+}
 
 // Connect to DB
 mongoose.connect(process.env.DB_STRING, { useNewUrlParser: true, useUnifiedTopology: true })
@@ -16,6 +37,10 @@ const productRoutes = require('./routes/products');
 const userRoutes = require('./routes/user');
 const keyRoute = require('./routes/key');
 const blacklistRoutes = require('./routes/blacklist');
+
+//CORS FOR TESTING PURPOSE
+app.use(cors());
+app.use(cors({ origin: '*' }));
 
 // Route Middlewares
 app.use(express.json());
@@ -33,19 +58,8 @@ app.get('/api/test', verifyToken, (req, res) => {
     res.json({test: 'This route is protected!'});
 });
 
-//Generating RSA Key
-if (!fs.existsSync('private.pem') || !fs.existsSync('public.pem')) {
-    const key = new NodeRSA({b: 2048});
-
-    const privateDerKey = key.exportKey('private');
-    const publicDerKey = key.exportKey('public');
-
-    fs.writeFileSync('private.pem', privateDerKey);
-    fs.writeFileSync('public.pem', publicDerKey);
-}
-
 app.use(function (req, res, next) {
     res.status(404).json({error: 'Sorry, we cannot find that!'});
 });
 
-app.listen(process.env.PORT, () => console.log('Server running.'));
+app.listen(3001, () => console.log('Server running.'));

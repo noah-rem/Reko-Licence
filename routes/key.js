@@ -1,9 +1,8 @@
 const express = require('express');
 const fs = require('fs');
-const verifyToken = require('../middleware/verifyToken');
 const router = express.Router();
 
-router.get('/public', verifyToken, (req, res) => {
+router.get('/public', (req, res) => {
     const publicKey = fs.readFileSync('public.pem', 'utf8');
     res.json({key: publicKey});
 });
