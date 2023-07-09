@@ -36,6 +36,9 @@ coverage/
 # Ignore compiled addons
 build/Release/
 
-# Ignore RSA Key
+# Ignore Program RSA Keys
 private.pem
 public.pem
+
+#Ignore created RSA keys for products
+routes/keys/

@@ -42,6 +42,9 @@ router.post('/', authenticateToken, checkRole(['admin']), async (req, res) => {
         const filePath = path.join(keysDirectory, `${filename}.pem`);
         fs.writeFileSync(filePath, publicKey);
 
+        const filePathPrivate = path.join(keysDirectory, `${filename}-private.pem`);
+        fs.writeFileSync(filePathPrivate, privateKey);
+
         product.publicKeyPath = filePath;
         await product.save();
 
@@ -135,6 +138,7 @@ router.post('/:productId/code', authenticateToken, checkRole(['admin']), async (
     }
 });
 
+
 // Route to get all codes of a product
 router.get('/:productName/codes', authenticateToken, async (req, res) => {
     const product = await Product.findOne({ name: req.params.productName }).populate('users');
@@ -142,14 +146,36 @@ router.get('/:productName/codes', authenticateToken, async (req, res) => {
     if (!product) {
         return res.status(404).json({ message: "Product not found" });
     }
-    
+
     const userId = req.user._id;
 
     if(product.users.every(user => user.id != userId) && req.user.role !== 'admin'){
         return res.status(403).json({ message: "Access denied" });
     }
 
-    res.json(product.codes);
+    const publicKey = fs.readFileSync(product.publicKeyPath, 'utf8');
+    console.log(publicKey)
+
+    const encryptedCodes = product.codes.map(code => {
+
+        const iv = crypto.randomBytes(16);
+        const aesKey = crypto.randomBytes(32);
+        const cipher = crypto.createCipheriv('aes-256-cbc', aesKey, iv);
+
+        const encryptedCodeValue = Buffer.concat([cipher.update(code.codeValue, 'utf8'), cipher.final()]);
+        const encryptedAesKey = crypto.publicEncrypt(publicKey, aesKey);
+
+        return {
+            name: code.name,
+            codeValue: {
+                iv: iv.toString('base64'),
+                aesKey: encryptedAesKey.toString('base64'),
+                data: encryptedCodeValue.toString('base64')
+            }
+        };
+    });
+
+    res.json(encryptedCodes);
 });
 
 
