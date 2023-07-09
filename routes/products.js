@@ -4,6 +4,10 @@ const Product = require('../models/Product');
 const User = require('../models/User');
 const checkRole = require('../middleware/checkRole');
 const authenticateToken = require('../middleware/verifyToken');
+const crypto = require('crypto');
+const fs = require('fs');
+const path = require('path');
+const { v4: uuidv4 } = require('uuid');
 
 // Route to create a product - Admin Based Role
 router.post('/', authenticateToken, checkRole(['admin']), async (req, res) => {
@@ -16,7 +20,32 @@ router.post('/', authenticateToken, checkRole(['admin']), async (req, res) => {
 
     try {
         const savedProduct = await product.save();
-        res.json(savedProduct);
+        const { publicKey, privateKey } = crypto.generateKeyPairSync('rsa', {
+            modulusLength: 2048,
+            publicKeyEncoding: {
+                type: 'pkcs1',
+                format: 'pem',
+            },
+            privateKeyEncoding: {
+                type: 'pkcs1',
+                format: 'pem',
+            },
+        });
+
+        const keysDirectory = path.join(__dirname, 'keys');
+        if (!fs.existsSync(keysDirectory)){
+            fs.mkdirSync(keysDirectory);
+        }
+
+        const filename = uuidv4();
+
+        const filePath = path.join(keysDirectory, `${filename}.pem`);
+        fs.writeFileSync(filePath, publicKey);
+
+        product.publicKeyPath = filePath;
+        await product.save();
+
+        res.json({product: savedProduct, private: privateKey, publicKeyPath: filePath});
     } catch (err) {
         res.status(400).send(err);
     }
